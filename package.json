@@ -1,0 +1,5 @@
+{ "name": "fa"
+, "description": "fluent async: functional programming support for asynchronous functions."
+, "version": "0.1.0"
+, "main": "./lib/fa.js"
+}
