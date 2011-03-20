@@ -1,7 +1,7 @@
 _ = require 'underscore'
-auf = require "#{__dirname}/../lib/auf"
+fa = require "#{__dirname}/../lib/fa"
 
-suite "auf suite", {serial: false, stopOnFail: true}
+suite "fa suite", {serial: false, stopOnFail: true}
 
 timeoutFor = (args) ->
   return (x, cb) ->
@@ -14,7 +14,7 @@ timeoutFor = (args) ->
 
 atest "each", ->
   args = []
-  auf.each [1,3,2], timeoutFor(args), (err, result) ->
+  fa.each [1,3,2], timeoutFor(args), (err, result) ->
     t.same undefined, err
     t.same undefined, result
     t.same args, [1,2,3]
@@ -22,64 +22,64 @@ atest "each", ->
 
 atest "series", ->
   args = []
-  auf.series().each [1,3,2], timeoutFor(args), (err) ->
+  fa.series().each [1,3,2], timeoutFor(args), (err) ->
     t.same undefined, err
     t.same args, [1,3,2]
     t.done()
 
 atest "queue", ->
   args = []
-  auf.queue(2).each [2,1.5,1], timeoutFor(args), (err) ->
+  fa.queue(2).each [2,1.5,1], timeoutFor(args), (err) ->
     t.same undefined, err
     t.same args, [1.5,2,1]
     t.done()
 
 test "each empty", ->
-  auf.each [], ((x,cb) -> notvalidcode), (err) ->
+  fa.each [], ((x,cb) -> notvalidcode), (err) ->
     t.ok true
 
 test "each error", ->
-  auf.each [1,2,3], ((x,cb) -> cb('error')), (err) ->
+  fa.each [1,2,3], ((x,cb) -> cb('error')), (err) ->
     t.eq err, 'error'
 
 atest "each continue", ->
   args = []
-  auf.continue().each [1,'invalid',3], timeoutFor(args), (err) ->
+  fa.continue().each [1,'invalid',3], timeoutFor(args), (err) ->
     t.same [1,3], args
     t.same ['Invalid x: invalid'], err
     t.done()
 
 atest "each continue no error", ->
   args = []
-  auf.continue().each [1,3,2], timeoutFor(args), (err) ->
+  fa.continue().each [1,3,2], timeoutFor(args), (err) ->
     t.same [1,2,3], args
     t.same undefined, err
     t.done()
 
 atest "continue.series.each", ->
   args = []
-  auf.continue().series().each [1,3,2], timeoutFor(args), (err) ->
+  fa.continue().series().each [1,3,2], timeoutFor(args), (err) ->
     t.same [1,3,2], args
     t.same undefined, err
     t.done()
 
 atest "series.continue.each", ->
   args = []
-  auf.series().continue().each [1,3,2], timeoutFor(args), (err) ->
+  fa.series().continue().each [1,3,2], timeoutFor(args), (err) ->
     t.same [1,3,2], args
     t.same undefined, err
     t.done()
 
 atest "series.continue.each", ->
   args = []
-  auf.series().continue().each [1,3,'invalid'], timeoutFor(args), (err) ->
+  fa.series().continue().each [1,3,'invalid'], timeoutFor(args), (err) ->
     t.same [1,3], args
     t.same ['Invalid x: invalid'], err
     t.done()
 
 atest "map", ->
   args = []
-  auf.map [1,3,2], timeoutFor(args), (err, result) ->
+  fa.map [1,3,2], timeoutFor(args), (err, result) ->
     t.same undefined, err
     t.same result, [2,4,6]
     t.same args, [1,2,3]
@@ -88,7 +88,7 @@ atest "map", ->
 ["filter","select"].map (name) ->
   atest name, ->
     args = []
-    auf[name] [1,3,2,4], ((x,cb) ->
+    fa[name] [1,3,2,4], ((x,cb) ->
       return cb(true) if x % 2 == 0
       cb()
     ), (err,results) ->
@@ -98,7 +98,7 @@ atest "map", ->
 
 atest "reject", ->
   args = []
-  auf.reject [1,3,2,4], ((x,cb) ->
+  fa.reject [1,3,2,4], ((x,cb) ->
     return cb(true) if x % 2 == 0
     cb()
   ), (err,results) ->
@@ -108,7 +108,7 @@ atest "reject", ->
 
 atest "each with object", ->
   args = {}
-  auf.each {k1: 1, k2: 2, k3: 3}, ((val,key,cb) ->
+  fa.each {k1: 1, k2: 2, k3: 3}, ((val,key,cb) ->
     args[val] = key
     cb()
   ), (err) ->
@@ -117,7 +117,7 @@ atest "each with object", ->
     t.done()
 
 atest "Really deep", ->
-  auf.each [x for x in [0..10000]], ((x,cb) ->
+  fa.each [x for x in [0..10000]], ((x,cb) ->
     process.nextTick ->
       cb()
   ), (err) ->
@@ -126,13 +126,13 @@ atest "Really deep", ->
 
 ["reduce","foldl","inject"].map (name) ->
   atest name, ->
-    auf[name] [1,3,2,4], 0, ((memo, x, cb) -> cb(null, memo + x)), (err, result) ->
+    fa[name] [1,3,2,4], 0, ((memo, x, cb) -> cb(null, memo + x)), (err, result) ->
       t.same undefined, err
       t.same result, 10
       t.done()
 
 atest "reduce with errs", ->
-  auf.reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
+  fa.reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
     if Number(x)
       cb(null, memo + x)
     else
@@ -143,7 +143,7 @@ atest "reduce with errs", ->
     t.done()
 
 atest "continue().reduce with errs", ->
-  auf.continue().reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
+  fa.continue().reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
     if Number(x)
       cb(null, memo + x)
     else
@@ -154,13 +154,13 @@ atest "continue().reduce with errs", ->
     t.done()
 
 atest "reduce with obj", ->
-  auf.reduce {k1: 1,k2: 3,k3: 2,k4: 4}, 0, ((memo, x, k, cb) -> cb(null, memo + x)), (err, result) ->
+  fa.reduce {k1: 1,k2: 3,k3: 2,k4: 4}, 0, ((memo, x, k, cb) -> cb(null, memo + x)), (err, result) ->
     t.same undefined, err
     t.same result, 10
     t.done()
 
 atest "detect", ->
-  auf.detect [3,2,1,4], ((x,cb) ->
+  fa.detect [3,2,1,4], ((x,cb) ->
     setTimeout (() ->
       return cb(true) if x % 2 == 0
       cb()
@@ -172,11 +172,11 @@ atest "detect", ->
 
 ["any","some"].map (name) ->
   atest name, ->
-    auf[name] [3,1,2], ((x,cb) ->
+    fa[name] [3,1,2], ((x,cb) ->
       cb(x==1)
     ), (result) ->
       t.eq true, result
-      auf[name] [3,4,2], ((x,cb) ->
+      fa[name] [3,4,2], ((x,cb) ->
         cb(x==1)
       ), (result) ->
         t.eq false, result
@@ -184,18 +184,18 @@ atest "detect", ->
 
 ["all","every"].map (name) ->
   atest name, ->
-    auf[name] [3,1,2], ((x, cb) ->
+    fa[name] [3,1,2], ((x, cb) ->
       cb(x < 10)
     ), (result) ->
       t.eq true, result
-      auf[name] [3,1,2], ((x, cb) ->
+      fa[name] [3,1,2], ((x, cb) ->
         cb(x < 3)
       ), (result) ->
         t.eq false, result
         t.done()
 
 atest "concat is a simple map away", ->
-  auf.map ['d1','d2'], ((dir, cb) ->
+  fa.map ['d1','d2'], ((dir, cb) ->
     cb(null, ["#{dir}-1","#{dir}-2"])
   ), (err, results) ->
     t.same ['d1-1','d1-2','d2-1','d2-2'], _.flatten(results)

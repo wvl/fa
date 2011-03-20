@@ -1,6 +1,6 @@
 
 
-auf = (concurrency=Number.MAX_VALUE, do_all=false) ->
+fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
   api = {}
 
   api.reduce = (arr, memo, iterator, callback) ->
@@ -138,13 +138,13 @@ auf = (concurrency=Number.MAX_VALUE, do_all=false) ->
   )
 
   api.queue = (concurrency) ->
-    auf(concurrency, do_all)
+    fa(concurrency, do_all)
 
   api.series = ->
-    auf(1, do_all)
+    fa(1, do_all)
 
   api.continue = ->
-    auf(concurrency, true)
+    fa(concurrency, true)
 
   # aliases
   api.forEach = api.each
@@ -156,4 +156,4 @@ auf = (concurrency=Number.MAX_VALUE, do_all=false) ->
 
   api
 
-module.exports = auf()
+module.exports = fa()
