@@ -71,7 +71,8 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
               callback = ->
               return
           else
-            if handleResult(results, result, val, key, callback) == true
+            results = handleResult(results, result, val, key, callback)
+            if results == true
               callback = ->
               finished = true
               return
@@ -102,16 +103,24 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
   # produce a new array of values
   api.map = tmpl('map', (() -> []), false, (results, result) ->
     results.push(result)
+    results
+  )
+
+  # produce a new array of values by concatting results together
+  api.concat = tmpl('concat', (() -> []), false, (results, result) ->
+    results.concat(result)
   )
 
   # return an array of values that pass a truth test. alias select
   api.filter = tmpl('filter', (() -> []), true, (results, result, val) ->
     results.push(val) if result
+    results
   )
 
   # return an array of values that the truth test passes. opposite of filter.
   api.reject = tmpl('reject', (() -> []), true, (results, result, val) ->
     results.push(val) unless result
+    results
   )
 
   # first value that passes a truth test
@@ -131,10 +140,10 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
   )
 
   # return true if all of the values pass the truth test
-  api.all = tmpl('all', (() -> []), true, ((results, result, val, key, callback) ->
-    results.push(true) if result
+  api.all = tmpl('all', (() -> 0), true, ((results, result, val, key, callback) ->
+    if result then ++results else results
   ), (err, callback, results, size) ->
-    callback(results.length == size)
+    callback(results == size)
   )
 
   api.queue = (concurrency) ->

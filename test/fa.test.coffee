@@ -194,9 +194,9 @@ atest "detect", ->
         t.eq false, result
         t.done()
 
-atest "concat is a simple map away", ->
-  fa.map ['d1','d2'], ((dir, cb) ->
-    cb(null, ["#{dir}-1","#{dir}-2"])
+atest "concat", ->
+  fa.concat ['d1','d2'], ((dir, cb) ->
+    cb(null, [[1,"#{dir}-1"],[2,"#{dir}-2"]])
   ), (err, results) ->
-    t.same ['d1-1','d1-2','d2-1','d2-2'], _.flatten(results)
+    t.same [[1,'d1-1'],[2,'d1-2'],[1,'d2-1'],[2,'d2-2']], results
     t.done()
