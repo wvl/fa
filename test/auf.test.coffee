@@ -188,4 +188,15 @@ atest "detect", ->
       cb(x < 10)
     ), (result) ->
       t.eq true, result
-      t.done()
+      auf[name] [3,1,2], ((x, cb) ->
+        cb(x < 3)
+      ), (result) ->
+        t.eq false, result
+        t.done()
+
+atest "concat is a simple map away", ->
+  auf.map ['d1','d2'], ((dir, cb) ->
+    cb(null, ["#{dir}-1","#{dir}-2"])
+  ), (err, results) ->
+    t.same ['d1-1','d1-2','d2-1','d2-2'], _.flatten(results)
+    t.done()
