@@ -51,6 +51,7 @@ class Auf
     count = 0
     isArray = _.isArray(arr)
     keys = Object.keys(arr) unless isArray
+    finished = false
 
     theCallback = (val,key) ->
       (err, result) ->
@@ -72,6 +73,18 @@ class Auf
             when Auf.MAP then results.push(result)
             when Auf.FILTER then results.push(val) if result
             when Auf.REJECT then results.push(val) unless result
+            when Auf.DETECT
+              if result
+                callback(undefined, val)
+                callback = ->
+                finished = true
+                return
+            when Auf.ANY
+              if result
+                callback(true)
+                callback = ->
+                finished = true
+                return
 
         if --pending == 0
           err = if errs and errs.length then errs else undefined
@@ -80,7 +93,7 @@ class Auf
 
     process = ->
       # console.log("process",pending,concurrency,count,isArray)
-      if workers++ < concurrency and count < size
+      if workers++ < concurrency and count < size and !finished
         if isArray
           val = arr[count++]
           iterator val, theCallback(val)
@@ -94,14 +107,23 @@ class Auf
   map: (arr, iterator, callback) ->
     @each arr, iterator, callback, Auf.MAP
 
+  # return an array of values that pass a truth test. alias select
   filter: (arr, iterator, callback) ->
     @each arr, iterator, callback, Auf.FILTER
 
-  select: (arr, iterator, callback) ->
-    @each arr, iterator, callback, Auf.FILTER
-
+  # return an array of values that the truth test passes. opposite of filter.
   reject: (arr, iterator, callback) ->
     @each arr, iterator, callback, Auf.REJECT
+
+  # first value that passes a truth test
+  detect: (arr, iterator, callback) ->
+    @each arr, iterator, callback, Auf.DETECT
+
+  # all: (arr, iterator, callback) ->
+  #   @each arr, iterator, callback, Auf.ALL
+
+  any: (arr, iterator, callback) ->
+    @each arr, iterator, callback, Auf.ANY
 
   queue: (depth) ->
     new Auf(depth, @do_all)
@@ -112,12 +134,21 @@ class Auf
   all: ->
     new Auf(@depth, true)
 
+# Aliases
+Auf::select = Auf::filter
+Auf::inject = Auf::reduce
+Auf::foldl = Auf::reduce
+
+Auf::some = Auf::any
+# Auf::every = Auf::all
+
 Auf.EACH   = 0
 Auf.MAP    = 1
 Auf.FILTER = 11
 Auf.REJECT = 12
-Auf.SOME   = 13
-Auf.EVERY  = 14
+Auf.ANY    = 13
+Auf.ALL    = 14
+Auf.DETECT = 15
 
 auf = new Auf()
 

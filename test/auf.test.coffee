@@ -27,9 +27,9 @@ atest "series", ->
 
 atest "queue", ->
   args = []
-  auf.queue(2).each [1.5,1,1], timeoutFor(args), (err) ->
+  auf.queue(2).each [2,1.5,1], timeoutFor(args), (err) ->
     t.same undefined, err
-    t.same args, [1,1.5,1]
+    t.same args, [1.5,2,1]
     t.done()
 
 test "each empty", ->
@@ -83,25 +83,16 @@ atest "map", ->
     t.same args, [1,2,3]
     t.done()
 
-atest "filter", ->
-  args = []
-  auf.filter [1,3,2,4], ((x,cb) ->
-    return cb(true) if x % 2 == 0
-    cb()
-  ), (err,results) ->
-    t.same results, [2,4]
-    t.same undefined, err
-    t.done()
-
-atest "select", ->
-  args = []
-  auf.select [1,3,2,4], ((x,cb) ->
-    return cb(true) if x % 2 == 0
-    cb()
-  ), (err,results) ->
-    t.same results, [2,4]
-    t.same undefined, err
-    t.done()
+["filter","select"].map (name) ->
+  atest name, ->
+    args = []
+    auf[name] [1,3,2,4], ((x,cb) ->
+      return cb(true) if x % 2 == 0
+      cb()
+    ), (err,results) ->
+      t.same results, [2,4]
+      t.same undefined, err
+      t.done()
 
 atest "reject", ->
   args = []
@@ -131,11 +122,12 @@ atest "Really deep", ->
     t.same undefined, err
     t.done()
 
-atest "reduce", ->
-  auf.reduce [1,3,2,4], 0, ((memo, x, cb) -> cb(null, memo + x)), (err, result) ->
-    t.same undefined, err
-    t.same result, 10
-    t.done()
+["reduce","foldl","inject"].map (name) ->
+  atest name, ->
+    auf[name] [1,3,2,4], 0, ((memo, x, cb) -> cb(null, memo + x)), (err, result) ->
+      t.same undefined, err
+      t.same result, 10
+      t.done()
 
 atest "reduce with errs", ->
   auf.reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
@@ -164,3 +156,28 @@ atest "reduce with obj", ->
     t.same undefined, err
     t.same result, 10
     t.done()
+
+atest "detect", ->
+  auf.detect [3,2,1,4], ((x,cb) ->
+    setTimeout (() ->
+      return cb(true) if x % 2 == 0
+      cb()
+    ), x*25
+  ), (err,result) ->
+    t.same undefined, err
+    t.same 2, result
+    t.done()
+
+["any","some"].map (name) ->
+  atest name, ->
+    auf[name] [3,1,2], ((x,cb) ->
+      cb(x==1)
+    ), (result) ->
+      t.eq true, result
+      auf[name] [3,4,2], ((x,cb) ->
+        cb(x==1)
+      ), (result) ->
+        t.eq false, result
+        t.done()
+
+
