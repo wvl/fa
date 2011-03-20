@@ -1,17 +1,16 @@
-_ = require 'underscore'
 
 
 auf = (concurrency=Number.MAX_VALUE, do_all=false) ->
   api = {}
 
   api.reduce = (arr, memo, iterator, callback) ->
-    return callback(null, memo) unless _.size(arr)
+    isArray = Array.isArray(arr)
+    keys = if isArray then arr else Object.keys(arr)
+    return callback(undefined, memo) unless keys.length
 
     errs = [] if do_all
-    size = pending = _.size(arr)
+    size = pending = keys.length
     count = 0
-    isArray = _.isArray(arr)
-    keys = Object.keys(arr) unless isArray
 
     theCallback = (err, result) ->
       if err
@@ -43,16 +42,16 @@ auf = (concurrency=Number.MAX_VALUE, do_all=false) ->
 
   tmpl = (name, initResults, single_argument_callback, handleResult, handleReturn) ->
     return (arr, iterator, callback, what=0) ->
-      return callback() unless _.size(arr)
+      isArray = Array.isArray(arr)
+      keys = if isArray then arr else Object.keys(arr)
+      return callback() unless keys.length
 
       results = initResults()
 
       errs = [] if do_all
       workers = 0
-      size = pending = _.size(arr)
+      size = pending = keys.length
       count = 0
-      isArray = _.isArray(arr)
-      keys = Object.keys(arr) unless isArray
       finished = false
 
       theCallback = (val,key) ->
@@ -148,11 +147,12 @@ auf = (concurrency=Number.MAX_VALUE, do_all=false) ->
     auf(concurrency, true)
 
   # aliases
-  api.select = api.filter
-  api.inject = api.reduce
-  api.foldl = api.reduce
-  api.some = api.any
-  api.every = api.all
+  api.forEach = api.each
+  api.select  = api.filter
+  api.inject  = api.reduce
+  api.foldl   = api.reduce
+  api.some    = api.any
+  api.every   = api.all
 
   api
 
