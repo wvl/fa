@@ -3,6 +3,41 @@ _ = require 'underscore'
 class Auf
   constructor: (@depth=Number.MAX_VALUE, @do_all=false) ->
 
+  reduce: (arr, memo, iterator, callback) ->
+    return callback(null, memo) unless _.size(arr)
+
+    errs = [] if @do_all
+    size = pending = _.size(arr)
+    count = 0
+    isArray = _.isArray(arr)
+    keys = Object.keys(arr) unless isArray
+
+    theCallback = (err, result) ->
+      if err
+        if errs
+          errs.push(err)
+        else
+          callback(err)
+          callback = ->
+          return
+      else
+
+      if --pending == 0
+        err = if errs and errs.length then errs else undefined
+        return callback(err,result)
+      process(result)
+
+    process = (memo) ->
+      if isArray
+        val = arr[count++]
+        iterator memo, val, theCallback
+      else
+        key = keys[count++]
+        val = arr[key]
+        iterator memo, val, key, theCallback
+
+    process(memo)
+
   each: (arr, iterator, callback, what=0) ->
     return callback() unless _.size(arr)
 

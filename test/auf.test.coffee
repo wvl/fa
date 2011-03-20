@@ -122,3 +122,45 @@ atest "each with object", ->
     t.same undefined, err
     t.same args, {1: 'k1', 2: 'k2', 3: 'k3'}
     t.done()
+
+atest "Really deep", ->
+  auf.each [x for x in [0..10000]], ((x,cb) ->
+    process.nextTick ->
+      cb()
+  ), (err) ->
+    t.same undefined, err
+    t.done()
+
+atest "reduce", ->
+  auf.reduce [1,3,2,4], 0, ((memo, x, cb) -> cb(null, memo + x)), (err, result) ->
+    t.same undefined, err
+    t.same result, 10
+    t.done()
+
+atest "reduce with errs", ->
+  auf.reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
+    if Number(x)
+      cb(null, memo + x)
+    else
+      cb('oops')
+  ), (err, result) ->
+    t.same 'oops', err
+    t.same undefined, result
+    t.done()
+
+atest "all().reduce with errs", ->
+  auf.all().reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
+    if Number(x)
+      cb(null, memo + x)
+    else
+      cb('oops', memo)
+  ), (err, result) ->
+    t.same ['oops'], err
+    t.same 8, result
+    t.done()
+
+atest "reduce with obj", ->
+  auf.reduce {k1: 1,k2: 3,k3: 2,k4: 4}, 0, ((memo, x, k, cb) -> cb(null, memo + x)), (err, result) ->
+    t.same undefined, err
+    t.same result, 10
+    t.done()
