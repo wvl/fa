@@ -5,15 +5,16 @@ timeoutFor = (args) ->
   return (x, cb) ->
     throw new Error("x is undefined") if x==undefined
     setTimeout (() ->
-      return cb("Invalid x: #{x}") if x.toString().match(/invalid/)
+      return cb("Invalid x: #{x}") unless Number(x)
       args.push(x)
-      cb()
-    ), if x == 'invalid' then 0 else x*25
+      cb(null, x*2)
+    ), if Number(x) then x*25 else 0
 
 atest "each", ->
   args = []
-  auf.each [1,3,2], timeoutFor(args), (err) ->
+  auf.each [1,3,2], timeoutFor(args), (err, result) ->
     t.same undefined, err
+    t.same undefined, result
     t.same args, [1,2,3]
     t.done()
 
@@ -72,4 +73,52 @@ atest "series.all.each", ->
   auf.series().all().each [1,3,'invalid'], timeoutFor(args), (err) ->
     t.same [1,3], args
     t.same ['Invalid x: invalid'], err
+    t.done()
+
+atest "map", ->
+  args = []
+  auf.map [1,3,2], timeoutFor(args), (err, result) ->
+    t.same undefined, err
+    t.same result, [2,4,6]
+    t.same args, [1,2,3]
+    t.done()
+
+atest "filter", ->
+  args = []
+  auf.filter [1,3,2,4], ((x,cb) ->
+    return cb(true) if x % 2 == 0
+    cb()
+  ), (err,results) ->
+    t.same results, [2,4]
+    t.same undefined, err
+    t.done()
+
+atest "select", ->
+  args = []
+  auf.select [1,3,2,4], ((x,cb) ->
+    return cb(true) if x % 2 == 0
+    cb()
+  ), (err,results) ->
+    t.same results, [2,4]
+    t.same undefined, err
+    t.done()
+
+atest "reject", ->
+  args = []
+  auf.reject [1,3,2,4], ((x,cb) ->
+    return cb(true) if x % 2 == 0
+    cb()
+  ), (err,results) ->
+    t.same results, [1,3]
+    t.same undefined, err
+    t.done()
+
+atest "each with object", ->
+  args = {}
+  auf.each {k1: 1, k2: 2, k3: 3}, ((val,key,cb) ->
+    args[val] = key
+    cb()
+  ), (err) ->
+    t.same undefined, err
+    t.same args, {1: 'k1', 2: 'k2', 3: 'k3'}
     t.done()
