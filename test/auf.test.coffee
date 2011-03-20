@@ -1,6 +1,8 @@
 _ = require 'underscore'
 auf = require "#{__dirname}/../lib/auf"
 
+suite "auf suite", {serial: false, stopOnFail: true}
+
 timeoutFor = (args) ->
   return (x, cb) ->
     throw new Error("x is undefined") if x==undefined
@@ -40,37 +42,37 @@ test "each error", ->
   auf.each [1,2,3], ((x,cb) -> cb('error')), (err) ->
     t.eq err, 'error'
 
-atest "each all", ->
+atest "each continue", ->
   args = []
-  auf.all().each [1,'invalid',3], timeoutFor(args), (err) ->
+  auf.continue().each [1,'invalid',3], timeoutFor(args), (err) ->
     t.same [1,3], args
     t.same ['Invalid x: invalid'], err
     t.done()
 
-atest "each all no error", ->
+atest "each continue no error", ->
   args = []
-  auf.all().each [1,3,2], timeoutFor(args), (err) ->
+  auf.continue().each [1,3,2], timeoutFor(args), (err) ->
     t.same [1,2,3], args
     t.same undefined, err
     t.done()
 
-atest "all.series.each", ->
+atest "continue.series.each", ->
   args = []
-  auf.all().series().each [1,3,2], timeoutFor(args), (err) ->
+  auf.continue().series().each [1,3,2], timeoutFor(args), (err) ->
     t.same [1,3,2], args
     t.same undefined, err
     t.done()
 
-atest "series.all.each", ->
+atest "series.continue.each", ->
   args = []
-  auf.series().all().each [1,3,2], timeoutFor(args), (err) ->
+  auf.series().continue().each [1,3,2], timeoutFor(args), (err) ->
     t.same [1,3,2], args
     t.same undefined, err
     t.done()
 
-atest "series.all.each", ->
+atest "series.continue.each", ->
   args = []
-  auf.series().all().each [1,3,'invalid'], timeoutFor(args), (err) ->
+  auf.series().continue().each [1,3,'invalid'], timeoutFor(args), (err) ->
     t.same [1,3], args
     t.same ['Invalid x: invalid'], err
     t.done()
@@ -140,8 +142,8 @@ atest "reduce with errs", ->
     t.same undefined, result
     t.done()
 
-atest "all().reduce with errs", ->
-  auf.all().reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
+atest "continue().reduce with errs", ->
+  auf.continue().reduce [1,3,'oops',4], 0, ((memo, x, cb) ->
     if Number(x)
       cb(null, memo + x)
     else
@@ -180,4 +182,10 @@ atest "detect", ->
         t.eq false, result
         t.done()
 
-
+["all","every"].map (name) ->
+  atest name, ->
+    auf[name] [3,1,2], ((x, cb) ->
+      cb(x < 10)
+    ), (result) ->
+      t.eq true, result
+      t.done()
