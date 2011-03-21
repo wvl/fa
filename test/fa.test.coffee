@@ -200,3 +200,17 @@ atest "concat", ->
   ), (err, results) ->
     t.same [[1,'d1-1'],[2,'d1-2'],[1,'d2-1'],[2,'d2-2']], results
     t.done()
+
+atest "concat queue", ->
+  fa.queue(2).concat ['1','2','3','4','5','6'], ((dir, cb) ->
+    setTimeout((() ->
+      cb(null, ["d#{dir}"])
+    ), 50)
+  ), (err, results) ->
+    t.same ['d1','d2','d3','d4','d5','d6'], results
+    t.done()
+
+atest "don't blow stack", ->
+  fa.reduce [x for x in [0..10000]][0], 0, ((m,x,cb) -> cb(null, m+x)), (err, memo) ->
+    t.equal memo, 50005000
+    t.done()

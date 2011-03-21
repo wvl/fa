@@ -25,9 +25,11 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
       if --pending == 0
         err = if errs and errs.length then errs else undefined
         return callback(err,result)
-      process(result)
 
-    process = (memo) ->
+      process.nextTick -> # use nextTick to avoid blowing the call stack
+        nextItem(result)
+
+    nextItem = (memo) ->
       if isArray
         val = arr[count++]
         iterator memo, val, theCallback
@@ -36,7 +38,7 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
         val = arr[key]
         iterator memo, val, key, theCallback
 
-    process(memo)
+    nextItem(memo)
 
   nullFn = -> undefined
 
@@ -83,9 +85,10 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
               return handleReturn(err, callback, results, size)
             else
               return callback(err,results)
-          process()
+          process.nextTick ->
+            nextItem()
 
-      process = ->
+      nextItem = ->
         # console.log("process",pending,concurrency,count,isArray)
         if workers++ < concurrency and count < size and !finished
           if isArray
@@ -96,7 +99,7 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
             val = arr[key]
             iterator val, key, theCallback(val,key)
 
-      process() for i in [1..(if concurrency < pending then concurrency else pending)]
+      nextItem() for i in [1..(if concurrency < pending then concurrency else pending)]
 
   api.each = tmpl('each',nullFn,false,nullFn)
 
