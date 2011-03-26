@@ -201,6 +201,14 @@ atest "concat", ->
     t.same [[1,'d1-1'],[2,'d1-2'],[1,'d2-1'],[2,'d2-2']], results
     t.done()
 
+atest "concat with nulls", ->
+  fa.concat ['d1',null,'d2'], ((dir, cb) ->
+    return cb(null) unless dir
+    cb(null, [[1,"#{dir}-1"],[2,"#{dir}-2"]])
+  ), (err, results) ->
+    t.same [[1,'d1-1'],[2,'d1-2'],[1,'d2-1'],[2,'d2-2']], results
+    t.done()
+
 atest "concat queue", ->
   fa.queue(2).concat ['1','2','3','4','5','6'], ((dir, cb) ->
     setTimeout((() ->

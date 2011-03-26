@@ -5,7 +5,10 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
 
   api.reduce = (arr, memo, iterator, callback) ->
     isArray = Array.isArray(arr)
-    keys = if isArray then arr else Object.keys(arr)
+    try
+      keys = if isArray then arr else Object.keys(arr)
+    catch e
+      return callback(new Error("Trying to reduce over non iterable"))
     return callback(undefined, memo) unless keys.length
 
     errs = [] if do_all
@@ -111,7 +114,7 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
 
   # produce a new array of values by concatting results together
   api.concat = tmpl('concat', (() -> []), false, (results, result) ->
-    results.concat(result)
+    if Array.isArray(result) then results.concat(result) else results
   )
 
   # return an array of values that pass a truth test. alias select
