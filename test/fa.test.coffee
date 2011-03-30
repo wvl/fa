@@ -160,14 +160,25 @@ atest "reduce with obj", ->
     t.done()
 
 atest "detect", ->
-  fa.detect [3,2,1,4], ((x,cb) ->
+  fa.detect [3,4,2,1], ((x,cb) ->
+    setTimeout (() ->
+      return cb(true) if x % 2 == 0
+      return cb()
+    ), x*25
+  ), (result, i) ->
+    t.same 2, result
+    t.same 1, i
+    t.done()
+
+atest "detect series", ->
+  fa.series().detect [3,1,4,2,1], ((x,cb) ->
     setTimeout (() ->
       return cb(true) if x % 2 == 0
       cb()
     ), x*25
-  ), (err,result) ->
-    t.same undefined, err
-    t.same 2, result
+  ), (result, i) ->
+    t.same 4, result
+    t.same 2, i
     t.done()
 
 ["any","some"].map (name) ->

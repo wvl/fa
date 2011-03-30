@@ -130,10 +130,11 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
   )
 
   # first value that passes a truth test
-  api.detect = tmpl('detect', (() -> []), true, (results, result, val, key, callback) ->
+  api.detect = tmpl('detect', (() -> 0), true, (results, result, val, key, callback) ->
     if result
-      callback(undefined, val)
-      true
+      callback(val, results)
+      return true
+    ++results
   )
 
   # return true if any of the values pass the truth test (short circuits if true is found)
