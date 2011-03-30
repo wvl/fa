@@ -233,3 +233,27 @@ atest "don't blow stack", ->
   fa.reduce [x for x in [0..10000]][0], 0, ((m,x,cb) -> cb(null, m+x)), (err, memo) ->
     t.equal memo, 50005000
     t.done()
+
+atest "if", ->
+  x = null
+  fa.if true, ((callback) ->
+    x = true
+    callback()
+  ), (err) ->
+    t.ok x
+    t.done()
+
+atest "if falsy", ->
+  fa.if false, ((cb) -> t.ok false), (err) ->
+    t.notError err
+    t.done()
+
+atest "if/else", ->
+  fa.if true, ((cb) -> cb(null, "one")), ((cb) -> cb(null, "two")), (err, r) ->
+    t.notError err
+    t.eq r, "one"
+    fa.if false, ((cb) -> cb(null, "one")), ((cb) -> cb(null, "two")), (err, r) ->
+      t.notError err
+      t.eq r, "two"
+      t.done()
+

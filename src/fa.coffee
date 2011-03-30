@@ -170,6 +170,20 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
   api.some    = api.any
   api.every   = api.all
 
+
+  api.if = (conditional, trueFn, elseFn, callback) ->
+    if !callback
+      callback = elseFn
+      elseFn = null
+
+    if conditional
+      trueFn callback 
+    else
+      if elseFn
+        elseFn callback
+      else
+        callback()
+
   api
 
 module.exports = fa()
