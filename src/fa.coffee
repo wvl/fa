@@ -170,6 +170,9 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
   api.some    = api.any
   api.every   = api.all
 
+  api.concurrent = api.queue
+  api.c          = api.queue
+
 
   api.if = (conditional, trueFn, elseFn, callback) ->
     if !callback

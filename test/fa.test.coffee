@@ -27,12 +27,13 @@ atest "series", ->
     t.same args, [1,3,2]
     t.done()
 
-atest "queue", ->
-  args = []
-  fa.queue(2).each [2,1.5,1], timeoutFor(args), (err) ->
-    t.same undefined, err
-    t.same args, [1.5,2,1]
-    t.done()
+["queue","concurrent","c"].forEach (name) ->
+  atest name, ->
+    args = []
+    fa[name](2).each [2,1.5,1], timeoutFor(args), (err) ->
+      t.same undefined, err
+      t.same args, [1.5,2,1]
+      t.done()
 
 test "each empty", ->
   fa.each [], ((x,cb) -> notvalidcode), (err) ->
