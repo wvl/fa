@@ -1,6 +1,6 @@
 
 
-fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
+fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
   api = {}
 
   api.reduce = (arr, memo, iterator, callback) ->
@@ -94,13 +94,20 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
       nextItem = ->
         # console.log("process",pending,concurrency,count,isArray)
         if workers++ < concurrency and count < size and !finished
+          index = count++
           if isArray
-            val = arr[count++]
-            iterator val, theCallback(val)
+            val = arr[index]
+            if with_index
+              iterator val, index, theCallback(val)
+            else
+              iterator val, theCallback(val)
           else
-            key = keys[count++]
+            key = keys[index]
             val = arr[key]
-            iterator val, key, theCallback(val,key)
+            if with_index
+              iterator val, key, index, theCallback(val,key)
+            else
+              iterator val, key, theCallback(val,key)
 
       nextItem() for i in [1..(if concurrency < pending then concurrency else pending)]
 
@@ -153,14 +160,20 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false) ->
     callback(results == size)
   )
 
+  #
+  # Moderator functions -- modify how the iterators behave
+  #
   api.queue = (concurrency) ->
-    fa(concurrency, do_all)
+    fa(concurrency, do_all, with_index)
 
   api.series = ->
-    fa(1, do_all)
+    fa(1, do_all, with_index)
+
+  api.with_index = ->
+    fa(concurrency, do_all, true)
 
   api.continue = ->
-    fa(concurrency, true)
+    fa(concurrency, true, with_index)
 
   # aliases
   api.forEach = api.each

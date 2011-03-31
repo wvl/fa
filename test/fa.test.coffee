@@ -78,6 +78,22 @@ atest "series.continue.each", ->
     t.same ['Invalid x: invalid'], err
     t.done()
 
+atest "with_index.each", ->
+  args = []
+  fa.with_index().each [1,2,3], ((x, i, cb) ->
+    t.eq x, i+1
+    return cb()
+  ), (err) ->
+    t.done()
+
+atest "with_index.each object", ->
+  args = []
+  fa.with_index().each {k1: 1, k2: 2, k3: 3}, ((val, key, i, cb) ->
+    t.eq val, i+1
+    return cb()
+  ), (err) ->
+    t.done()
+
 atest "map", ->
   args = []
   fa.map [1,3,2], timeoutFor(args), (err, result) ->
