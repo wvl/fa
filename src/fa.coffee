@@ -49,9 +49,13 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
     return (arr, iterator, callback, what=0) ->
       isArray = Array.isArray(arr)
       keys = if isArray then arr else Object.keys(arr)
-      return callback() unless keys.length
 
       results = initResults()
+      if !keys.length
+        if single_argument_callback
+          return callback(results)
+        else
+          return callback(undefined, results)
 
       errs = [] if do_all
       workers = 0
@@ -137,7 +141,8 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
   )
 
   # first value that passes a truth test
-  api.detect = tmpl('detect', (() -> 0), true, (results, result, val, key, callback) ->
+  api.detect = tmpl('detect', (() -> undefined), true, (results, result, val, key, callback) ->
+    results = 0 if results==undefined
     if result
       callback(val, results)
       return true
@@ -145,7 +150,7 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
   )
 
   # return true if any of the values pass the truth test (short circuits if true is found)
-  api.any = tmpl('any', (() -> []), true, ((results, result, val, key, callback) ->
+  api.any = tmpl('any', (() -> false), true, ((results, result, val, key, callback) ->
     if result
       callback(true)
       true
@@ -154,7 +159,8 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
   )
 
   # return true if all of the values pass the truth test
-  api.all = tmpl('all', (() -> 0), true, ((results, result, val, key, callback) ->
+  api.all = tmpl('all', (() -> true), true, ((results, result, val, key, callback) ->
+    results = 0 if results==true
     if result then ++results else results
   ), (err, callback, results, size) ->
     callback(results == size)

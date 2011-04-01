@@ -102,6 +102,15 @@ atest "map", ->
     t.same args, [1,2,3]
     t.done()
 
+
+["map","concat"].forEach (name) ->
+  atest "#{name} empty array", ->
+    args = []
+    fa[name] [], timeoutFor(args), (err, result) ->
+      t.same undefined, err
+      t.same result, []
+      t.done()
+
 ["filter","select"].map (name) ->
   atest name, ->
     args = []
@@ -187,6 +196,25 @@ atest "detect", ->
     t.same 1, i
     t.done()
 
+atest "detect empty array", ->
+  fa.detect [], ((x,cb) ->
+  ), (result, i) ->
+    t.same undefined, result
+    t.same undefined, i
+    t.done()
+
+atest "any empty array", ->
+  fa.any [], ((x,cb) ->
+  ), (result) ->
+    t.same false, result
+    t.done()
+
+["filter", "reject"].forEach (name) ->
+  atest "#{name} empty array", ->
+    fa[name] [], ((x,cb) -> ), (result) ->
+      t.same [], result
+      t.done()
+
 atest "detect series", ->
   fa.series().detect [3,1,4,2,1], ((x,cb) ->
     setTimeout (() ->
@@ -221,6 +249,12 @@ atest "detect series", ->
       ), (result) ->
         t.eq false, result
         t.done()
+
+atest "all empty array", ->
+  fa.all [], ((x,cb) ->
+  ), (result) ->
+    t.same true, result
+    t.done()
 
 atest "concat", ->
   fa.concat ['d1','d2'], ((dir, cb) ->
