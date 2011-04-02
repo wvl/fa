@@ -1,7 +1,7 @@
 _ = require 'underscore'
 fa = require "#{__dirname}/../lib/fa"
 
-suite "fa suite", {serial: false, stopOnFail: true}
+suite "fa suite", {serial: false, stopOnFail: false}
 
 timeoutFor = (args) ->
   return (x, cb) ->
@@ -98,7 +98,7 @@ atest "map", ->
   args = []
   fa.map [1,3,2], timeoutFor(args), (err, result) ->
     t.same undefined, err
-    t.same result, [2,4,6]
+    t.same result, [2,6,4] # map preserves order
     t.same args, [1,2,3]
     t.done()
 
