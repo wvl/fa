@@ -111,6 +111,14 @@ atest "map", ->
       t.same result, []
       t.done()
 
+atest "with_index.map", ->
+  args = []
+  fa.with_index().map [1,2,3], ((x, i, cb) ->
+    return cb(null, i)
+  ), (err, results) ->
+    t.same results, [0,1,2]
+    t.done()
+
 ["filter","select"].map (name) ->
   atest name, ->
     args = []
