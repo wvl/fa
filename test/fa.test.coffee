@@ -1,7 +1,6 @@
-_ = require 'underscore'
-fa = require "#{__dirname}/../lib/fa"
+fa = if window then require('fa') else require "#{__dirname}/../lib/fa"
 
-suite "fa suite", {serial: false, stopOnFail: false}
+suite "fa suite", {serial: false, stopOnFail: true}
 
 timeoutFor = (args) ->
   return (x, cb) ->
@@ -15,8 +14,8 @@ timeoutFor = (args) ->
 atest "each", ->
   args = []
   fa.each [1,3,2], timeoutFor(args), (err, result) ->
-    t.same undefined, err
-    t.same undefined, result
+    t.eq undefined, err
+    t.eq undefined, result
     t.same args, [1,2,3]
     t.done()
 
@@ -288,10 +287,11 @@ atest "concat queue", ->
     t.same ['d1','d2','d3','d4','d5','d6'], results
     t.done()
 
-atest "don't blow stack", ->
-  fa.reduce [x for x in [0..10000]][0], 0, ((m,x,cb) -> cb(null, m+x)), (err, memo) ->
-    t.equal memo, 50005000
-    t.done()
+unless window # This is *really* slow in the browser with fake process.nextTick
+  atest "don't blow stack", ->
+    fa.reduce [x for x in [0..10000]][0], 0, ((m,x,cb) -> cb(null, m+x)), (err, memo) ->
+      t.equal memo, 50005000
+      t.done()
 
 atest "if", ->
   x = null
