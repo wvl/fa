@@ -5,7 +5,7 @@
 
 # from annotator
 # relay: run child process relaying std{out,err} to this process
-relay = (cmd, args, stdoutPrint=print, stderrPrint=debug) ->
+relay = (cmd, args, stdoutPrint=print, stderrPrint=print) ->
   handle = spawn cmd, args
 
   handle.stdout.on 'data', (data) -> stdoutPrint(data) if data
