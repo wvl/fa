@@ -1,5 +1,14 @@
 { "name": "fa"
 , "description": "fluent async: functional programming support for asynchronous functions."
-, "version": "0.1.0"
+, "version": "0.1.1"
 , "main": "./lib/fa.js"
+, "dependencies": {}
+, "devDependencies": {}
+, "engines": { "node": "*" }
+, "author": "Wayne Larsen <wayne@larsen.st>"
+, "homepage": "https://github.com/wvl/fa"
+, "repository":
+  { "type": "git"
+  , "url": "git://github.com/wvl/fa.git"
+  }
 }
