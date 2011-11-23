@@ -184,6 +184,7 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
   # aliases
   api.forEach = api.each
   api.select  = api.filter
+  api.find    = api.detect
   api.inject  = api.reduce
   api.foldl   = api.reduce
   api.some    = api.any

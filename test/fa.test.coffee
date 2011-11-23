@@ -122,7 +122,7 @@ atest "with_index.map", (t) ->
   atest name, (t) ->
     args = []
     fa[name] [1,3,2,4], ((x,cb) ->
-      return cb(true) if x % 2 == 0
+      return cb(x % 2 == 0)
       cb()
     ), (err,results) ->
       t.same results, [2,4]
@@ -132,7 +132,7 @@ atest "with_index.map", (t) ->
 atest "reject", (t) ->
   args = []
   fa.reject [1,3,2,4], ((x,cb) ->
-    return cb(true) if x % 2 == 0
+    return cb(x % 2 == 0)
     cb()
   ), (err,results) ->
     t.same results, [1,3]
@@ -192,16 +192,17 @@ atest "reduce with obj", (t) ->
     t.same result, 10
     t.done()
 
-atest "detect", (t) ->
-  fa.detect [3,4,2,1], ((x,cb) ->
-    setTimeout (() ->
-      return cb(true) if x % 2 == 0
-      return cb()
-    ), x*25
-  ), (result, i) ->
-    t.same 2, result
-    t.same 1, i
-    t.done()
+['find','detect'].map (name) ->
+  atest name, (t) ->
+    fa[name] [3,4,2,1], ((x,cb) ->
+      setTimeout (() ->
+        return cb(x % 2 == 0)
+        return cb()
+      ), x*25
+    ), (result, i) ->
+      t.same 2, result
+      t.same 1, i
+      t.done()
 
 atest "detect empty array", (t) ->
   fa.detect [], ((x,cb) ->
@@ -225,7 +226,7 @@ atest "any empty array", (t) ->
 atest "detect series", (t) ->
   fa.series().detect [3,1,4,2,1], ((x,cb) ->
     setTimeout (() ->
-      return cb(true) if x % 2 == 0
+      return cb(x % 2 == 0)
       cb()
     ), x*25
   ), (result, i) ->
