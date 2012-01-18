@@ -1,6 +1,10 @@
 
 
 fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
+  process ?= {}
+  process.nextTick ?= (cb) ->
+    cb()
+
   api = {}
 
   api.reduce = (arr, memo, iterator, callback) ->
@@ -209,4 +213,7 @@ fa = (concurrency=Number.MAX_VALUE, do_all=false, with_index=false) ->
 
   api
 
-module.exports = fa()
+if typeof(module) != 'undefined'
+  module.exports = fa()
+else
+  window.fa = fa()
