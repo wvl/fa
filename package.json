@@ -1,12 +1,13 @@
 { "name": "fa"
 , "description": "fluent async: functional programming support for asynchronous functions."
 , "keywords": ["flow-control", "controlflow", "async", "functional"]
-, "version": "1.0.0"
+, "version": "1.0.1"
 , "main": "./lib/fa.js"
 , "dependencies": {}
 , "devDependencies": {}
 , "engines": { "node": "*" }
 , "author": "Wayne Larsen <wayne@larsen.st>"
+, "license": "MIT"
 , "homepage": "https://github.com/wvl/fa"
 , "bugs": { "url": "https://github.com/wvl/fa/issues" }
 , "repository":
