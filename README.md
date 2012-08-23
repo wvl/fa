@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/wvl/fa.png)](http://travis-ci.org/wvl/fa)
 fa = fluent/functional async
 ============================
 
