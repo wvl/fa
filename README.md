@@ -71,7 +71,7 @@ error parameter**.
 ```js
 fa.filter([0,1,2,3], function(num,cb) {
   cb(x % 2 == 0); // No Error parameter
-}, function(err, result) {
+}, function(result) {
   // result: [0,2]
 }
 ```
